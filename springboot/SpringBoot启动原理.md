@@ -1,5 +1,9 @@
 ## SpringBoot启动原理
 
+[TOC]
+
+
+
 ### Spring Boot、Spring MVC 和 Spring 有什么区别？
 
 分别描述各自的特征：
@@ -217,7 +221,7 @@ public @interface AutoConfigurationPackage {
 }
 ```
 
-通过`@Import(AutoConfigurationPackages.**Registrar**.class)`
+通过`@Import(AutoConfigurationPackages.Registrar.class)`
 
 ```java
 static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImports {
@@ -233,49 +237,175 @@ static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImp
     }
 ```
 
+它其实是注册了一个Bean的定义；
+
+`new PackageImport(metadata).getPackageName()`，它其实返回了**当前主程序类的**同级以及子级的包组件（重点）；
+
+（重点）那这总体就是注册当前主程序类的同级以及子级的包中的符合条件的**Bean的定义**？
+
+![image-20210301192412389](C:\Users\wys1557\AppData\Roaming\Typora\typora-user-images\image-20210301192412389.png)
+
+项目目录结构：
+
+![image-20210301192158326](C:\Users\wys1557\AppData\Roaming\Typora\typora-user-images\image-20210301192158326.png)
 
 
 
+##### Import(AutoConfigurationImportSelector.class)注解
+
+![AutoConfigurationImportSelector](C:\Users\wys1557\Pictures\typora\AutoConfigurationImportSelector.png)
+
+`（重点）`可以从图中看出**` AutoConfigurationImportSelector`** 实现了**` DeferredImportSelector `**从 ImportSelector继承的方法：**`selectImports`**。
+
+```java
+	@Override
+	public String[] selectImports(AnnotationMetadata annotationMetadata) {
+		if (!isEnabled(annotationMetadata)) {
+			return NO_IMPORTS;
+		}
+		AutoConfigurationEntry autoConfigurationEntry = getAutoConfigurationEntry(annotationMetadata);
+		return StringUtils.toStringArray(autoConfigurationEntry.getConfigurations());
+	}
+
+	/**
+	 * Return the {@link AutoConfigurationEntry} based on the {@link AnnotationMetadata}
+	 * of the importing {@link Configuration @Configuration} class.
+	 * @param annotationMetadata the annotation metadata of the configuration class
+	 * @return the auto-configurations that should be imported
+	 */
+	protected AutoConfigurationEntry getAutoConfigurationEntry(AnnotationMetadata annotationMetadata) {
+		if (!isEnabled(annotationMetadata)) {
+			return EMPTY_ENTRY;
+		}
+		AnnotationAttributes attributes = getAttributes(annotationMetadata);
+        // 加载各个组件jar下的   public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories"
+		List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
+        
+		configurations = removeDuplicates(configurations);
+		Set<String> exclusions = getExclusions(annotationMetadata, attributes);
+		checkExcludedClasses(configurations, exclusions);
+		configurations.removeAll(exclusions);
+		configurations = getConfigurationClassFilter().filter(configurations);
+		fireAutoConfigurationImportEvents(configurations, exclusions);
+		return new AutoConfigurationEntry(configurations, exclusions);
+	}
+
+
+```
+
+该方法在springboot启动流程——`bean实例化前`被执行，返回要实例化的类信息列表；
+
+如果获取到类信息，spring可以通过类加载器将类加载到jvm中，现在我们已经通过spring-boot的starter依赖方式依赖了我们需要的组件，那么这些组件的类信息在select方法中就可以被获取到。
+
+```java
+	protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {
+		List<String> configurations = SpringFactoriesLoader.loadFactoryNames(getSpringFactoriesLoaderFactoryClass(),
+				getBeanClassLoader());
+		Assert.notEmpty(configurations, "No auto configuration classes found in META-INF/spring.factories. If you "
+				+ "are using a custom packaging, make sure that file is correct.");
+		return configurations;
+	}
+
+	public static List<String> loadFactoryNames(Class<?> factoryType, @Nullable ClassLoader classLoader) {
+		ClassLoader classLoaderToUse = classLoader;
+		if (classLoaderToUse == null) {
+			classLoaderToUse = SpringFactoriesLoader.class.getClassLoader();
+		}
+		String factoryTypeName = factoryType.getName();
+		return loadSpringFactories(classLoaderToUse).getOrDefault(factoryTypeName, Collections.emptyList());
+	}
+
+	private static Map<String, List<String>> loadSpringFactories(ClassLoader classLoader) {
+		Map<String, List<String>> result = cache.get(classLoader);
+		if (result != null) {
+			return result;
+		}
+
+		result = new HashMap<>();
+		try {
+            // FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories"
+            // 加载配置文件
+			Enumeration<URL> urls = classLoader.getResources(FACTORIES_RESOURCE_LOCATION);
+			while (urls.hasMoreElements()) {
+				URL url = urls.nextElement();
+				UrlResource resource = new UrlResource(url);
+				Properties properties = PropertiesLoaderUtils.loadProperties(resource);
+				for (Map.Entry<?, ?> entry : properties.entrySet()) {
+                    // spring.factories文件中找到相应的key
+					String factoryTypeName = ((String) entry.getKey()).trim();
+					String[] factoryImplementationNames =
+							StringUtils.commaDelimitedListToStringArray((String) entry.getValue());
+					for (String factoryImplementationName : factoryImplementationNames) {
+						result.computeIfAbsent(factoryTypeName, key -> new ArrayList<>())
+								.add(factoryImplementationName.trim());
+					}
+				}
+			}
+
+			// Replace all lists with unmodifiable lists containing unique elements
+			result.replaceAll((factoryType, implementations) -> implementations.stream().distinct()
+					.collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList)));
+			cache.put(classLoader, result);
+		}
+		catch (IOException ex) {
+			throw new IllegalArgumentException("Unable to load factories from location [" +
+					FACTORIES_RESOURCE_LOCATION + "]", ex);
+		}
+		return result;
+	}
+```
+
+**`（重点）`**其中，最关键的要属`@Import(AutoConfigurationImportSelector.class)`，借助`AutoConfigurationImportSelector`，`@EnableAutoConfiguration`可以帮助SpringBoot应用将`所有符合条件(spring.factories)的bean定义`（如Java Config`@Configuration配置`）都加载到当前SpringBoot创建并使用的`IoC容器`。就像一只“八爪鱼”一样。 
 
 
 
+### 自动配置幕后英雄：SpringFactoriesLoader详解
+
+借助于Spring框架**`原有`**的一个工具类：**`SpringFactoriesLoader`**的支持，@EnableAutoConfiguration可以智能的自动配置功效才得以大功告成！
+
+SpringFactoriesLoader属于Spring框架私有的一种`扩展`方案，其主要功能就是从**`指定的配置文件META-INF/spring.factories`**加载配置,**`加载工厂类`**。
+
+SpringFactoriesLoader为`Spring工厂加载器`，该对象提供了`loadFactoryNames`方法，入参为factoryClass和classLoader即需要传入**`工厂类`**名称和对应的类加载器，方法会根据指定的classLoader，加载该类加器搜索路径下的指定文件，即`spring.factories`文件；
+
+传入的工厂类为接口，而文件中对应的类则是接口的实现类，或最终作为实现类。
+
+```java
+public abstract class SpringFactoriesLoader {
+//...
+　　public static <T> List<T> loadFactories(Class<T> factoryClass, ClassLoader classLoader) {
+　　　　...
+　　}
+   
+   
+　　public static List<String> loadFactoryNames(Class<?> factoryClass, ClassLoader classLoader) {
+　　　　....
+　　}
+}
+```
+
+配合`@EnableAutoConfiguration`使用的话，它更多是提供一种配置查找的功能支持，即根据`@EnableAutoConfiguration`的完整类名org.springframework.boot.autoconfigure.EnableAutoConfiguration作为`查找的Key`,获取对应的一组`@Configuration类`　　
+
+` （重点）`所以，`@EnableAutoConfiguration`自动配置的魔法其实就变成了：
+
+从`classpath`中搜寻所有的`META-INF/spring.factories`配置文件，并将其中org.springframework.boot.autoconfigure.EnableAutoConfiguration对应的**`配置项`**通过**`反射（Java Refletion）`**实例化为对应的标注了**`@Configuration`**的JavaConfig形式的IoC容器配置类，然后汇总为一个并加载到IoC容器。
+
+![自动装配流程](C:\Users\wys1557\Pictures\typora\自动装配流程.png)
+
+​											SpringBoot自动化配置关键组件关系图 
+
+ mybatis-spring-boot-starter、spring-boot-starter-web等组件的META-INF文件下均含有spring.factories文件，自动配置模块中，SpringFactoriesLoader收集到文件中的类全名并返回一个类全名的数组，返回的类全名通过反射被实例化，就形成了具体的工厂实例，工厂实例来生成组件具体需要的bean。
+
+### 深入探索SpringApplication执行流程
+
+![启动流程](C:\Users\wys1557\Pictures\typora\启动流程.png)
 
 
 
+### Bean的生命周期
+
+![bean生命周期](C:\Users\wys1557\Pictures\typora\bean生命周期.png)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### BeanFactory 和ApplicationContext的区别
 
