@@ -2,7 +2,7 @@
 
 #### HashMap的数据结构
 
-![11](C:\Users\wys1557\Desktop\11.jpg)
+![](D:\Lese\Java基础\集合\image\HashMap的数据结构.jpg)
 
 > 0、1是该元素数据索引也是元素的hashCode
 
@@ -76,7 +76,7 @@ tab[i = (n - 1) & hash]
 
 ## Hashmap中put()过程
 
-![22](C:\Users\wys1557\Desktop\22.jpg)
+![hashmap的put](D:\Lese\Java基础\集合\image\hashmap的put.jpg)
 
 put()源码如下：
 
@@ -280,9 +280,9 @@ final Node<K, V>[] resize() {
 
 1.8版本中扩容分2种情况，下边用图例来解释。
 
-![情况一](C:\Users\wys1557\Desktop\情况一.jpg)
+![](D:\Lese\Java基础\集合\image\扩容情况一.jpg)
 
-![情况2](C:\Users\wys1557\Desktop\情况2.jpg)
+![扩容情况2](D:\Lese\Java基础\集合\image\扩容情况2.jpg)
 
 #### 红黑树
 

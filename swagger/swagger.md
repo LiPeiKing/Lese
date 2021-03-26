@@ -140,11 +140,11 @@ public class UserController {
 
 - 访问
 
-![image-20210107173132367](C:\Users\wys1557\AppData\Roaming\Typora\typora-user-images\image-20210107173132367.png)
+![访问1](D:%5CLese%5Cswagger%5Cimages%5C%E8%AE%BF%E9%97%AE1.png)
 
 
 
-​		![image-20210107173233388](C:\Users\wys1557\AppData\Roaming\Typora\typora-user-images\image-20210107173233388.png)
+​		![访问2](D:%5CLese%5Cswagger%5Cimages%5C%E8%AE%BF%E9%97%AE2.png)
 
 ### Swagger注解说明
 
@@ -338,7 +338,7 @@ public class UserController {
 
 - 执行命令该插件的asciidoctor:process-asciidoc命令
 
-![image-20210107182000810](C:\Users\wys1557\AppData\Roaming\Typora\typora-user-images\image-20210107182000810.png)
+![插件目录](D:%5CLese%5Cswagger%5Cimages%5C%E6%8F%92%E4%BB%B6%E7%9B%AE%E5%BD%95.png)
 
 ​	详细文档参考：
 

@@ -16,13 +16,13 @@ Kafka专为分布式高吞吐量系统而设计。 Kafka往往工作得很好，
 
 在点对点系统中，消息被保留在队列中。 一个或多个消费者可以消耗队列中的消息，但是特定消息只能由最多一个消费者消费。 一旦消费者读取队列中的消息，它就从该队列中消失。 该系统的典型示例是订单处理系统，其中每个订单将由一个订单处理器处理，但多个订单处理器也可以同时工作。 下图描述了结构。
 
-![点对点](C:\Users\wys1557\Desktop\点对点.jpg)
+![点对点](D:\Lese\kafka\image\点对点.jpg)
 
 #### 发布 - 订阅消息系统
 
 在发布 - 订阅系统中，消息被保留在主题中。 与点对点系统不同，消费者可以订阅一个或多个主题并使用该主题中的所有消息。 在发布 - 订阅系统中，消息生产者称为发布者，消息使用者称为订阅者。 一个现实生活的例子是Dish电视，它发布不同的渠道，如运动，电影，音乐等，任何人都可以订阅自己的频道集，并获得他们订阅的频道时可用。
 
-![消息队列](C:\Users\wys1557\Desktop\消息队列.jpg)
+![消息队列](D:\Lese\kafka\image\消息队列.jpg)
 
 #### 什么是Kafka？
 
@@ -103,7 +103,7 @@ Kafka is a distributed,partitioned,replicated commit logservice。
 
 Kafka 的总体数据流满足下图，该图可以说是概括了整个 kafka 的基本原理。
 
-![kafka流](C:\Users\wys1557\Pictures\typora\kafka流.jpg)
+![kafka流](D:\Lese\kafka\image\kafka流.jpg)
 
 ##### 数据生产过程（Produce）
 
@@ -111,7 +111,7 @@ Kafka 的总体数据流满足下图，该图可以说是概括了整个 kafka �
 
   对于一条记录，先对其进行序列化，然后按照 Topic 和 Partition，放进对应的发送队列中。如果 Partition 没填，那么情况会是这样的：a、Key 有填。按照 Key 进行哈希，相同 Key 去一个 Partition。b、Key 没填。Round-Robin 来选 Partition。
 
-![数据产生](C:\Users\wys1557\Pictures\typora\数据产生.png)
+![数据产生](D:\Lese\kafka\image\数据产生.png)
 
   producer 将会和Topic下所有 partition leader 保持 socket 连接，消息由 producer 直接通过 socket 发送到 broker。其中 partition leader 的位置( host : port )注册在 ZooKeeper 中，producer 作为 ZooKeeper client，已经注册了 watch 用来监听 partition leader 的变更事件，因此，可以准确的知道谁是当前的 leader。
 
@@ -127,7 +127,7 @@ Kafka 的总体数据流满足下图，该图可以说是概括了整个 kafka �
 
 > 同一个消费组的两个消费者不会同时消费一个 partition。
 
-![消费](C:\Users\wys1557\Pictures\typora\消费.png)
+![消费](D:\Lese\kafka\image\消费.png)
 
   在 kafka 中，采用了 pull 方式，即 consumer 在和 broker 建立连接之后，主动去 pull(或者说 fetch )消息，首先 consumer 端可以根据自己的消费能力适时的去 fetch 消息并处理，且可以控制消息消费的进度(offset)。
 
