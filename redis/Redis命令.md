@@ -122,6 +122,8 @@ Redis的list类型其实就是一个每个子元素都是string类型的双向�
 
 ### hashes类型及操作
 
+​    
+
 Redis hash 是一个string类型的field和value的映射表，它的添加、删除操作都是O(1)（平均）。hash特别适用于存储对象，将一个对象存储在hash类型中会占用更少的内存，并且可以方便的存取整个对象。
 
 **配置：** hash_max_zipmap_entries 64 #配置字段最多64个
