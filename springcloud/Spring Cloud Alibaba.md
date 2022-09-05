@@ -299,7 +299,7 @@ spring.cloud.nacos.config.namespace=dce1c908-347c-4770-b867-c8d4a7d5ae95	# 从�
     name=MySQL 5.7 Community Server
     baseurl=http://repo.mysql.com/yum/mysql-5.7-community/el/7/$basearch/
     enabled=1
-gpgcheck=0
+    gpgcheck=0
     gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
     ```
     
@@ -423,7 +423,7 @@ db.password=Root!Q2w
 - 查看Nginx安装目录
 	
 	```shell
-[root@localhost nginx-1.11.1]# ls
+	[root@localhost nginx-1.11.1]# ls
 	auto  CHANGES  CHANGES.ru  conf  configure  contrib  html  LICENSE  man  README  src
 	```
 	
