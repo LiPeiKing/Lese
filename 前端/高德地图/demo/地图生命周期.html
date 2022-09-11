@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css"/>
+    <title>地图显示</title>
+    <style>
+        html,
+        body
+    </style>
+</head>
+<body>
+<div id="container" style="width:500px; height:300px"></div>
+<!-- 加载地图JSAPI脚本 -->
+<script src="https://webapi.amap.com/maps?v=1.4.15&key=03b9267961bda5dc21bd73820f31fbe9"></script>
+<script>
+    var map = new AMap.Map('container', {
+      zoom: 10,  //设置地图显示的缩放级别
+      center: [116.397428, 39.90923],//设置地图中心点坐标
+      // layers: [new AMap.TileLayer.Satellite()],  //设置图层,可设置成包含一个或多个图层的数组
+      mapStyle: 'amap://styles/whitesmoke',  //设置地图的显示样式
+      viewMode: '3D',  //设置地图模式
+      lang:'zh_cn',  //设置地图语言类型
+    });
+
+    map.on('complete', function(){
+      // 地图图块加载完成后触发
+      console.log("2333:地图加载完成")
+    });
+    setTimeout(function () {
+      console.log("销毁地图")
+      map.destroy(function () {
+      });
+    }, 3000)
+
+    console.log(map.getCity(function (info) {
+      console.log(info)
+    }))
+</script>
+</body>
+</html>

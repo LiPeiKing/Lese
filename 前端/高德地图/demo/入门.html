@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>地图显示</title>
+    <style>
+        html,
+        body,
+        #containers {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="containers"></div>
+<!-- 加载地图JSAPI脚本 -->
+<script src="https://webapi.amap.com/maps?v=1.4.15&key=03b9267961bda5dc21bd73820f31fbe9"></script>
+<script>
+    var position = new AMap.LngLat(116, 39)
+    var path = [new AMap.LngLat(116,39), new AMap.LngLat(116,40), new AMap.LngLat(117,40), new AMap.LngLat(117,39), new AMap.LngLat(116,39)] //标准写法
+    var polyline = new AMap.Polyline({
+        path : path,
+    })
+
+    var map = new AMap.Map('containers', {
+        resizeEnable: true, //是否监控地图容器尺寸变化
+        zoom:11, //初始化地图层级
+        center: position //初始化地图中心点
+    });
+    map.add(polyline)
+    var offset  = new AMap.Pixel(-16,-30);
+    var marker = new AMap.Marker({
+        offset:offset,
+        icon:'xxx.png',
+    });
+    map.add(marker);
+
+    // var southWest = new AMap.LngLat(110,20);
+    // var northEast = new AMap.LngLat(120,30);
+    // var bounds = new AMap.Bounds(southWest, northEast);
+    // map.setBounds(bounds);
+
+    var map = new AMap.Map('container',{
+        zoom:17,
+        viewMode:'3D'
+    })
+    var arrayBounds = map.getBounds();
+    var path = arrayBounds.bounds//经纬度的路径
+    var isPointInBounds =  arrayBounds.contains(new AMap.LngLat(116, 39))//判断点是否在边界内
+
+</script>
+</body>
+</html>

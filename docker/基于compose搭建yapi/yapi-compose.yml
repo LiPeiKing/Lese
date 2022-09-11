@@ -1,0 +1,25 @@
+version: '3'
+services:
+  yapi:
+    image: jayfong/yapi:latest                  # 镜像名
+    container_name: yapi                        # 容器名
+    ports:
+      - 3000:3000                               # 端口，宿主机:容器
+    environment:
+      - YAPI_ADMIN_ACCOUNT=admin@easou.com      # 登入账号
+      - YAPI_ADMIN_PASSWORD=admin               # 登入密码
+      - YAPI_CLOSE_REGISTER=true                # 关闭注册功能
+      - YAPI_DB_SERVERNAME=mongodb              # mongodb 数据库地址
+      - YAPI_DB_PORT=27017                      # mongodb 端口
+      - YAPI_DB_DATABASE=yapi                   # mongodb 数据库名
+      - YAPI_MAIL_ENABLE=false                  # 不启用邮箱
+      - YAPI_LDAP_LOGIN_ENABLE=false            # 不启用 loap 登入
+      - YAPI_PLUGINS=[]                         # 插件
+      # - COMPOSE_PROJECT_NAME=yapi
+    restart: always
+
+# 设置默认网络
+networks:
+  default:
+    external:
+      name: mynet
