@@ -312,7 +312,7 @@ private int expungeStaleEntry(int staleSlot) {
 
 
 ```java
-private void expungeStaleEntries() {
+private void expungeStaleEntries()   {
     Entry[] tab = table;
     int len = tab.length;
     for (int j = 0; j < len; j++) {
