@@ -290,7 +290,7 @@ spring.cloud.nacos.config.namespace=dce1c908-347c-4770-b867-c8d4a7d5ae95	# 从�
 		
 		```sh
 		vi /etc/yum.repos.d/mysql-community.repo
-		```
+	```
 	
 - 粘贴以下内容到源文件中
   
